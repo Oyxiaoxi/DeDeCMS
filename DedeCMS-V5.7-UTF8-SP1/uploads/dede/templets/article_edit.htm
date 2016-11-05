@@ -461,7 +461,8 @@ if($cfg_need_typeid2=='Y') {
           <tr>
             <td width="110">&nbsp;更新时间：</td>
             <td width="250"><?php
-          $nowtime = GetDateTimeMk(time());
+          <!-- $nowtime = GetDateTimeMk(time()); -->
+          $nowtime = GetDateTimeMk($arcRow["pubdate"]);
           echo "<input name=\"pubdate\" value=\"$nowtime\" type=\"text\" id=\"pubdate\" style=\"width:120px;\">";
 			?>
               <script language="javascript" type="text/javascript">

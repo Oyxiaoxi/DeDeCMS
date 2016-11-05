@@ -781,7 +781,11 @@ else if($dopost=="makekw")
         $sp->SetSource(Html2Text($body), $cfg_soft_lang, $cfg_soft_lang);
         $sp->StartAnalysis();
         $allindexs = preg_replace("/#p#|#e#/",'',$sp->GetFinallyIndex());
-        
+        if($description=='' && $cfg_auot_description>0){
+            $description = cn_substr(html2text($body),$cfg_auot_description);
+            $description = trim(preg_replace('/#p#|#e#/','',$description));
+            $description = addslashes($description);
+        }
         if(is_array($allindexs) && is_array($titleindexs))
         {
             foreach($titleindexs as $k => $v)
@@ -931,6 +935,64 @@ else if($dopost=='attsDel')
     exit();
 }
 /*--------------------------
+//批量增加tag
+function addTags(){ }
+---------------------------*/
+else if($dopost=='tagsAdd')
+{
+ CheckPurview('a_Commend,sys_ArcBatch');
+ if( !empty($aid) && empty($qstr) )
+ {
+  $qstr = $aid;
+ }
+ if($qstr=='')
+ {
+  ShowMsg("参数无效！",$ENV_GOBACK_URL);
+  exit();
+ }
+ if(empty($tags))
+ {
+  ShowMsg("必须指定要添加的tags！",$ENV_GOBACK_URL);
+  exit();
+ }
+ $arcids = ereg_replace('[^0-9,]','',ereg_replace('`', ',', $qstr));
+ 
+ //分解keywords
+  if($tags!='' && !ereg(',',$tags))
+  {
+   $keyarr = explode(' ', $tags);
+  }
+  else
+  {
+   $keyarr = explode(',', $tags);
+  }
+  //遍历关键字
+  foreach($keyarr as $keyword)
+  {
+   $keyword = trim($keyword);
+   if($keyword != '' && strlen($keyword)<13 )
+   {
+    $keyword = addslashes($keyword);
+    $row = $dsql->getone("select id from `dede_tagindex` where tag like '$keyword'");
+    if(is_array($row))
+    {
+     $tid = $row['id'];
+     $query = "update `dede_tagindex` set `total`=`total`+1 where id='$tid' ";
+   
+    //遍历文章ID
+     $idarr = explode(',', $arcids);
+     foreach($idarr as $tagid)
+     {
+     InsertTags($keyword, $tagid);
+     }
+    }
+   }
+  }
+ 
+ ShowMsg("成功对选中文档增加指定的tags！",$ENV_GOBACK_URL);
+ exit();
+}
+/*--------------------------
 //获得批量属性处理的AJAX窗体
 function attsDlg(){ }
 ---------------------------*/
@@ -985,6 +1047,57 @@ else if($dopost=='attsDlg')
 <?php
 //AJAX窗体结束
 }
+/*--------------------------
+//获得批量tag处理的AJAX窗体
+function tagsDlg(){ }
+---------------------------*/
+ else if($dopost=='tagsDlg')
+{
+ if( !empty($aid) && empty($qstr) )
+ {
+  $qstr = $aid;
+ }
+ $dojobname = '批量增加tag';
+ AjaxHead();
+ //输出AJAX可移动窗体
+ $divname = 'tagsDlg';
+ echo "<div class='title' onmousemove=\"DropMoveHand('{$divname}', 225);\" onmousedown=\"DropStartHand();\" onmouseup=\"DropStopHand();\">\r\n";
+ echo " <div class='titLeft'>{$dojobname}</div>\r\n";
+ echo " <div class='titRight'><img src='img/ico-close.gif' style='cursor:pointer;' onclick='HideObj(\"{$divname}\");ChangeFullDiv(\"hide\");' alt='关闭' title='关闭' /></div>\r\n";
+ echo "</div>\r\n";
+ echo "<form name='quickeditform' action='archives_do.php' method='post'>\r\n";
+ echo "<input type='hidden' name='dopost' value='{$dojob}' />\r\n";
+ echo "<input type='hidden' name='qstr' value='{$qstr}' />\r\n";
+ echo "<table width='100%' style='margin-top:6px;z-index:9000;'>\r\n";
+?>
+<tr height='28'>
+ <td width="100" class='bline'>&nbsp;Tags：</td>
+ <td >
+    <textarea name="tags" id="tags" rows="5" cols="10" style="width:310px;"></textarea> 
+  
+
+ </td>
+</tr>
+<tr height='32'>
+ <td width="80" class='bline'>&nbsp;文档ID：</td>
+ <td class='bline'>
+  <input type='text' name='tmpids' value="<?php echo $qstr; ?>" style='width:310px;overflow:hidden;' />
+ </td>
+</tr>
+<tr height='32'>
+ <td colspan='2' align='center' style='padding-top:12px'>
+  <input name="imageField" type="image" src="img/button_ok.gif" width="60" height="22" class="np" border="0" style="cursor:pointer" />
+  &nbsp;&nbsp;
+  <img src="img/button_back.gif" width="60" height="22" border="0" onclick='HideObj("<?php echo $divname; ?>");ChangeFullDiv("hide");' style="cursor:pointer" />
+ </td>
+</td>
+</tr>
+</table>
+</form>
+<?php
+//AJAX窗体结束
+}
+
 /*------------------------
 function getCatMap() {  }
 -------------------------*/
@@ -1013,4 +1126,58 @@ else if($dopost=='getCatMap')
 <?php
 //AJAX窗体结束
 }
+
+/*--------------------------
+//获得批量关键词处理的AJAX窗体
+function keywordsDlg(){ }
+---------------------------*/
+else if($dopost=='keywordsDlg')
+{
+    if( !empty($aid) && empty($qstr) )
+    {
+        $qstr = $aid;
+    }
+    $dojobname = '批量增加关键词';
+    AjaxHead();
+    //输出AJAX可移动窗体
+    $divname = 'keywordsDlg';
+    echo "<div class='title' onmousemove=\"DropMoveHand('{$divname}', 225);\" onmousedown=\"DropStartHand();\" onmouseup=\"DropStopHand();\">
+    \r\n";
+    echo "    <div class='titLeft'>{$dojobname}</div>\r\n";
+    echo "<div class='titRight'><img src='images/ico-close.gif' style='cursor:pointer;' onclick='HideObj(\"{$divname}\");ChangeFullDiv(\"hide\");' alt='关闭' title='关闭' /></div>\r\n";
+    echo "<form name='quickeditform' action='archives_do.php' method='post'>
+        \r\n";
+        echo "<input type='hidden' name='dopost' value='{$dojob}' />\r\n";
+        echo "<input type='hidden' name='qstr' value='{$qstr}' />\r\n";
+        echo "<table width='100%' style='margin-top:6px;z-index:9000;'>
+            \r\n";
+            ?>
+            <tr height='28'>
+                <td width="100" class='bline'>关键词：</td>
+                <td>
+                    <textarea name="tags" id="tags" rows="5" cols="10" style="width:310px;"></textarea>
+                </td>
+            </tr>
+            <tr height='32'>
+                <td width="80" class='bline'> 文档ID：</td>
+                <td class='bline'>
+                    <input type='text' name='tmpids' value="<?php echo $qstr; ?>" style='width:310px;overflow:hidden;' />
+                </td>
+            </tr>
+            <tr height='32'>
+                <td colspan='2' align='center' style='padding-top:12px'>
+                    <input name="imageField" type="image" src="images/button_ok.gif" width="60" height="22" class="np" border="0" style="cursor:pointer" />
+                      
+                    <img src="images/button_back.gif" width="60" height="22" border="0" onclick='HideObj("<?php echo $divname; ?>");ChangeFullDiv("hide");' style="cursor:pointer" />
+                </td>
+                </td>
+            </tr>
+        </table>
+    </form>
+    <?php
+    //AJAX窗体结束
+    }
+    ?>
+
+
 ?>

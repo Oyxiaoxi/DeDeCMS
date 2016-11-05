@@ -19,3 +19,12 @@ function litimgurls($imgid=0)
     //返回结果
     return $lit_imglist;
 }
+
+function get_firstbigimg($arcid){
+   //获取图片附加表imgurls字段内容进行处理
+   $dsql = new DedeSql(false);
+   $row = $dsql->GetOne("Select imgurls From #@__addonimages where aid='$arcid'");
+    preg_match_all("|{dede:img ddimg='(.*)' text=(.*)|Uis",$row['imgurls'],$imgurls); //获取所有图片地址
+    $get_firestimg = $imgurls[1][0]; // 
+    return $get_firestimg;
+　}

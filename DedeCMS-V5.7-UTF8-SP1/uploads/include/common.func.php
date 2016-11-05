@@ -320,3 +320,9 @@ if( file_exists(DEDEINC.'/extend.func.php') )
 {
     require_once(DEDEINC.'/extend.func.php');
 }
+
+//将缩放图转变为文章第一张图片 
+function firstimg($str_pic) {
+    $str_sub=substr($str_pic,0,-7).".jpg";//删除缩略图字符串最后七位，然后再补上后缀.jpg
+    retu $str_sub; 
+}

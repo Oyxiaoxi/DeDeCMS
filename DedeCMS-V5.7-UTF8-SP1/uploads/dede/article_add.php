@@ -104,7 +104,8 @@ else if($dopost=='save')
     $writer =  cn_substrR($writer,20);
     $source = cn_substrR($source,30);
     $description = cn_substrR($description,$cfg_auot_description);
-    $keywords = cn_substrR($keywords,60);
+    //$keywords = cn_substrR($keywords,60);
+    $keywords = cn_substrR($keywords,255);
     $filename = trim(cn_substrR($filename,40));
     $userip = GetIP();
     $isremote  = (empty($isremote)? 0  : $isremote);

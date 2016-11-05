@@ -371,6 +371,7 @@ function lib_arclistDone(&$refObj, &$ctag, $typeid=0, $row=10, $col=1, $titlelen
             $addfieldsSql = ",addf.".join(',addf.', $addfields);
             $addfieldsSqlJoin = " LEFT JOIN `$addtable` addf ON addf.aid = arc.id ";
         }
+        $row['first_imgurl'] = get_firstbigimg($row['id']);
     }
 
     $query = "SELECT arc.*,tp.typedir,tp.typename,tp.corank,tp.isdefault,tp.defaultname,tp.namerule,
