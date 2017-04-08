@@ -74,6 +74,22 @@ $nowtime = GetDateTimeMk($arcRow["pubdate"]);
 
 >5. 添加批量增加tag标签功能 ( /dede/templates/content_list.htm ，/dede/js/list.js，/dede/archives_do.php )
 
+>6. DEDE 生成手机静态 (utf-8/uploads/DEDE生成手机静态(utf-8).xml)
+
+>7. 相关技巧代码:
+
+<pre>
+// 判断当前状态的代码
+{dede:field name=typeid runphp="yes"}(@me=="")? @me=" class='current' ":@me="";{/dede:field}>
+class='current' 被选中时的状态
+// 二级域名下面包削导航
+{dede:field name='position'  runphp='yes'}
+$b = array("<a href='http://www.xxxx.com/'>网站首页</a> >","m/","手机站");
+$c = array("","","网站首页");
+@me=str_replace($b,$c,@me); 
+{/dede:field}
+</pre>
+
 ####<p> 因为时间关系，还有很多修改功能没有展现出来，请有兴趣的自己研读代码吧！ </p>
 
 
