@@ -74,7 +74,9 @@ $nowtime = GetDateTimeMk($arcRow["pubdate"]);
 
 >5. 添加批量增加tag标签功能 ( /dede/templates/content_list.htm ，/dede/js/list.js，/dede/archives_do.php )
 
->6. DEDE 生成手机静态 (utf-8/uploads/DEDE生成手机静态(utf-8).xml)
+>6. DEDE 生成手机静态 (utf-8/uploads/DEDE生成手机静态(utf-8).xml)，bug {dede:field name='position'/}
+会导致生成的 文章页连接时 出现不该有的字符
+修改 include/typelink.class.php 里的 GetPositionLink()，GetOneTypeUrl() 方法，删除掉 defined('DEDEMOB') 判断...
 
 >7. 相关技巧代码:
 
@@ -89,6 +91,10 @@ $c = array("","","网站首页");
 @me=str_replace($b,$c,@me); 
 {/dede:field}
 </pre>
+
+
+
+
 
 ####<p> 因为时间关系，还有很多修改功能没有展现出来，请有兴趣的自己研读代码吧！ </p>
 
