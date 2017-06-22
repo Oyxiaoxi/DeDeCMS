@@ -92,10 +92,29 @@ $c = array("","","网站首页");
 {/dede:field}
 </pre>
 
+>8. linux dedecms 执行权限设置:
 
-
-
+```php
+$filename=scandir("./"); //遍历当前目录
+$configure1 = "          location ~* ^/(";
+$configure2 = ")/.*\.(php|php5)$";
+$configure3 = "{<br>		
+               deny all;<br>
+          }";
+for($i=0;$i<sizeof($filename);$i++) {
+	if(is_dir($filename[$i]))  //判断是否为文件夹
+	{  
+		if($i+1==sizeof($filename)){
+			$configure .= $filename[$i]; 
+		}else{
+			$configure .= $filename[$i]."|";
+		}
+	}
+}
+$configure = str_replace(".|..|","",$configure);
+$configure = str_replace("include|","",$configure);
+$configure = str_replace("plus|","",$configure);
+echo $configure1.$configure.$configure2.$configure3;
+```
 
 ####<p> 因为时间关系，还有很多修改功能没有展现出来，请有兴趣的自己研读代码吧！ </p>
-
-
