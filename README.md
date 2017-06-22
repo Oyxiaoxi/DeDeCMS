@@ -117,4 +117,4 @@ $configure = str_replace("plus|","",$configure);
 echo $configure1.$configure.$configure2.$configure3;
 ```
 
-####<p> 因为时间关系，还有很多修改功能没有展现出来，请有兴趣的自己研读代码吧！ </p>
+#### 因为时间关系，还有很多修改功能没有展现出来，请有兴趣的自己研读代码吧！
