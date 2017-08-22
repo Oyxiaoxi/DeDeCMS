@@ -122,6 +122,9 @@ echo $configure1.$configure.$configure2.$configure3;
 {dede:field.body runphp='yes'}
 @me=str_replace('/uploads/','http://www.xxxxx.com/uploads/',@me); 
 {/dede:field.body}
+{dede:field.typedir runphp='yes'}
+@me=str_replace('{cmspath}','http://m.xxxxxx.com',@me);
+{/dede:field.typedir}
 </pre>
 
 #### 因为时间关系，还有很多修改功能没有展现出来，请有兴趣的自己研读代码吧！
