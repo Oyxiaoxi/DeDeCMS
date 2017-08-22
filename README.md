@@ -117,4 +117,11 @@ $configure = str_replace("plus|","",$configure);
 echo $configure1.$configure.$configure2.$configure3;
 ```
 
+>9. 文章内容里的图片替换连接( 生成手机静态模型导入后，会出现文章图片连接错误！ ):
+<pre>
+{dede:field.body runphp='yes'}
+@me=str_replace('/uploads/','http://www.xxxxx.com/uploads/',@me); 
+{/dede:field.body}
+</pre>
+
 #### 因为时间关系，还有很多修改功能没有展现出来，请有兴趣的自己研读代码吧！
