@@ -127,4 +127,50 @@ echo $configure1.$configure.$configure2.$configure3;
 {/dede:field.typedir}
 </pre>
 
+>10. 手机对应跳转链接 :
++ 1. 如果有指定栏目，封面连接，就跳转 指定连接。
++ 2. 如果文章没有指定连接，栏目也没有指定连接就跳转 首页。
++ 3. 如果有指定栏目，封面连接，但是没有指定文章连接，就跳转到 栏目 连接。
+
++ 系统->系统基本参数->站点设置，添加新变量 cfg_mobilehost。
++ 核心->内容模型管理->普通文章，添加新字段 mobileurl。
++ #@__arctype 表，在siteurl 之后填加 mobileurl，varchar(100)
++ catalog_edit.php 填加 mobileurl字段。catalog_edit.htm 增加填写URL地址的input
++ catalog_add.php 填加 mobileurl字段。catalog_add.htm
+
+```php
+# common.func.php 填加共用方法
+function getArcUrl($data){
+    global $cfg_mobilehost,$dsql;   
+    // 栏目连接 
+    $type = $dsql->GetOne("SELECT * FROM `#@__arctype` WHERE `mobileurl` = '$data'");
+    if ($type){
+        $typeUrl = $type['mobileurl'];
+        $typeUrl = $typeUrl?$typeUrl:$cfg_mobilehost;
+        return $typeUrl;
+    } 
+    
+    // 文章连接
+    $article = $dsql->GetOne("SELECT * FROM `#@__addonarticle` WHERE `aid` = '$data'");
+    if ($article['mobileurl']) {
+        $arcUrl = $article['mobileurl'];
+    } else {
+        $result = $dsql->GetOne("SELECT * FROM `#@__archives` WHERE `id` = '$data'");
+        $typeid = $result['typeid'];
+        $result = $dsql->GetOne("SELECT * FROM `#@__arctype` WHERE `id` = {$typeid}");
+        $arcUrl = $result['mobileurl'];
+        $arcUrl = $arcUrl?$arcUrl:$cfg_mobilehost;
+    }
+    return $arcUrl;
+}
+```
+
++ 模板调用
+
+```html
+主页:<script type="text/javascript">uaredirect("{dede:global.cfg_mobilehost/}"); </script> 
+封面,列表：<script type="text/javascript">uaredirect("{dede:field.mobileurl function='getArcUrl(@me)'/}"); </script>
+文章：<script type="text/javascript">uaredirect("{dede:field.id function='getArcUrl(@me)'/}"); </script>
+```
+
 #### 因为时间关系，还有很多修改功能没有展现出来，请有兴趣的自己研读代码吧！
