@@ -173,4 +173,127 @@ function getArcUrl($data){
 文章：<script type="text/javascript">uaredirect("{dede:field.id function='getArcUrl(@me)'/}"); </script>
 ```
 
+> 11.熊掌号  
+
++ 新增接口
+
+> 后台每次更新文章，自动推送给百度熊掌号
+
++ 1.找到 后台目录下的 article_add.php 文件 
+```php
+$artUrl = MakeArt($arcID,true,true,$isremote);
+if($artUrl=='')
+{
+    $artUrl = $cfg_phpurl."/view.php?aid=$arcID";
+}
+```
++ 2. 在 **if($artUrl=='')** 增加 
+```php
+$artUrl = MakeArt($arcID,true,true,$isremote);
+if ($artUrl=='')
+{
+    $artUrl = $cfg_phpurl."/view.php?aid=$arcID";
+} else {
+    $urls = array('http://m.xxxxx.com'.$artUrl.'',); # 更改域名
+    $api = 'http://data.zz.baidu.com/urls?appid=熊掌号AppID&token=Token值&type=realtime'; # 注意新增接口内容类型
+    $ch = curl_init();
+    $options =  array(
+        CURLOPT_URL => $api,
+        CURLOPT_POST => true,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POSTFIELDS => implode("\n", $urls),
+        CURLOPT_HTTPHEADER => array('Content-Type: text/plain'),
+    );
+    curl_setopt_array($ch, $options);
+    $result = curl_exec($ch);
+}
+```
+
++ 3. 如上操作，已经实现每次更新文章会自动推动给百度熊掌号。
+
++ 历史接口
+
+> 文章后台已经发布过的文章，推送给百度熊掌号
+
++ 1. 进入后台，找到后台目录下的 templtes 文件夹，进去找 index_body.htm
+```php
+# 104 行 增加入口
+<div class="icoitem" style="background:url(images/manage1.gif) 10px 3px no-repeat;"><a href="content_listxzh.php">熊掌号管理</a></div>
+```
+
++ 2. 后台目录下找到 content_list.php，复制一份，重命为 content_listxzh.php
+
+```php
+# 232 行，修改模板入口
+if(empty($s_tmplets)) $s_tmplets = 'templets/content_listxzh.htm';
+$dlist->SetTemplate(DEDEADMIN.'/'.$s_tmplets);
+```
+
++ 3. 后台目录下 templtes 文件夹，复制content_list.htm, 改为content_listxzh.htm
+```php
+# 103 行增加
+<a href="javascript:xzh(0)" class="coolbg"> 百度熊账号更新 </a>
+```
+
++ 4.进入dede目录下，js文件夹里面，打开list.js, 在最后或者中间加入代码
+```php
+function xzh(aid){
+	var qstr=getCheckboxItem();
+	if(aid==0) aid = getOneItem();
+	location="archives_do.php?qstr="+qstr+"&aid="+aid+"&dopost=xzh"; 
+}
+
+# 87 行插入
+new ContextItem("熊账号更新",function(){ xzh(aid); }),
+```
+
++ 5.进入dede目录下，找到archives_do.php, 在 267行增加
+```php
+/*--------------------------
+//熊掌号更新
+function xzh() {   }
+---------------------------*/
+else if($dopost=="xzh")
+{
+    CheckPurview('a_Check,a_AccCheck,sys_ArcBatch');
+    require_once(DEDEADMIN."/inc/inc_archives_functions.php");
+    if( !empty($aid) && empty($qstr) ) $qstr = $aid;
+    if($qstr=='')
+    {
+        ShowMsg("参数无效！",$ENV_GOBACK_URL);
+        exit();
+    }
+    $arcids = preg_replace("#[^0-9,]#", '', preg_replace("#`#", ',', $qstr));
+    $query = "Select arc.id,arc.title,arc.shorttitle,arc.typeid,arc.ismake,arc.senddate,arc.arcrank,arc.money,arc.filename,arc.litpic,
+                        t.typedir,t.typename,t.namerule,t.namerule2,t.ispart,t.moresite,t.siteurl,t.sitepath,t.isdefault,t.defaultname 
+                        from `#@__archives` arc left join #@__arctype t on arc.typeid=t.id 
+            WHERE arc.id in($arcids) ";
+    $dsql->SetQuery($query);
+    $dsql->Execute();
+
+    $data=array();
+    while($row = $dsql->GetArray())
+    {
+        $preRow=$row;
+            $data[]="http://m.xxxxx.com".GetFileUrl($preRow['id'],$preRow['typeid'],'',$preRow['title'],$preRow['ismake'],0,$preRow['namerule'],$preRow['typedir'],$preRow['money'],$preRow['filename'],$preRow['moresite'],$preRow['siteurl'],$preRow['sitepath']); 
+    }
+        $urls=$data;
+        $api = 'http://data.zz.baidu.com/urls?appid=熊掌号AppID&token=Token值&type=batch';
+        $ch = curl_init();
+        $options =  array(
+            CURLOPT_URL => $api,
+            CURLOPT_POST => true,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POSTFIELDS => implode("\n", $urls),
+            CURLOPT_HTTPHEADER => array('Content-Type: text/plain'),
+        );
+        curl_setopt_array($ch, $options);
+        $result = curl_exec($ch);
+        echo $result;
+
+    ShowMsg($result,$ENV_GOBACK_URL);
+    exit();
+}
+```
+
 #### 因为时间关系，还有很多修改功能没有展现出来，请有兴趣的自己研读代码吧！
