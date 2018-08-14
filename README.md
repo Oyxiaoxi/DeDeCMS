@@ -179,7 +179,7 @@ function getArcUrl($data){
 
 > 后台每次更新文章，自动推送给百度熊掌号
 
-+ 1.找到 后台目录下的 article_add.php 文件 
++ 1.找到后台目录下的 article_add.php 文件 
 ```php
 $artUrl = MakeArt($arcID,true,true,$isremote);
 if($artUrl=='')
@@ -215,13 +215,13 @@ if ($artUrl=='')
 
 > 文章后台已经发布过的文章，推送给百度熊掌号
 
-+ 1. 进入后台，找到后台目录下的 templtes 文件夹，进去找 index_body.htm
++ 1.进入后台，找到后台目录下的templtes文件夹，进去找index_body.htm
 ```php
 # 104 行 增加入口
 <div class="icoitem" style="background:url(images/manage1.gif) 10px 3px no-repeat;"><a href="content_listxzh.php">熊掌号管理</a></div>
 ```
 
-+ 2. 后台目录下找到 content_list.php，复制一份，重命为 content_listxzh.php
++ 2.后台目录下找到content_list.php，复制一份，重命为content_listxzh.php
 
 ```php
 # 232 行，修改模板入口
@@ -229,7 +229,7 @@ if(empty($s_tmplets)) $s_tmplets = 'templets/content_listxzh.htm';
 $dlist->SetTemplate(DEDEADMIN.'/'.$s_tmplets);
 ```
 
-+ 3. 后台目录下 templtes 文件夹，复制content_list.htm, 改为content_listxzh.htm
++ 3.后台目录下templtes文件夹，复制content_list.htm, 改为content_listxzh.htm
 ```php
 # 103 行增加
 <a href="javascript:xzh(0)" class="coolbg"> 百度熊账号更新 </a>
@@ -247,7 +247,7 @@ function xzh(aid){
 new ContextItem("熊账号更新",function(){ xzh(aid); }),
 ```
 
-+ 5.进入dede目录下，找到archives_do.php, 在 267行增加
++ 5.进入dede目录下，找到archives_do.php, 在267行增加
 ```php
 /*--------------------------
 //熊掌号更新
