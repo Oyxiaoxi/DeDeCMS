@@ -215,13 +215,13 @@ if ($artUrl=='')
 
 > 文章后台已经发布过的文章，推送给百度熊掌号
 
-+ 1.进入后台，找到后台目录下的templtes文件夹，进去找index_body.htm
++ 1.进入后台，找到后台目录下的 templtes 文件夹，进去找 index_body.htm
 ```php
 # 104 行 增加入口
 <div class="icoitem" style="background:url(images/manage1.gif) 10px 3px no-repeat;"><a href="content_listxzh.php">熊掌号管理</a></div>
 ```
 
-+ 2.后台目录下找到content_list.php，复制一份，重命为content_listxzh.php
++ 2.后台目录下找到 content_list.php，复制一份，重命为 content_listxzh.php
 
 ```php
 # 232 行，修改模板入口
@@ -229,13 +229,13 @@ if(empty($s_tmplets)) $s_tmplets = 'templets/content_listxzh.htm';
 $dlist->SetTemplate(DEDEADMIN.'/'.$s_tmplets);
 ```
 
-+ 3.后台目录下templtes文件夹，复制content_list.htm, 改为content_listxzh.htm
++ 3.后台目录下 templtes 文件夹，复制 content_list.htm , 改为 content_listxzh.htm
 ```php
 # 103 行增加
 <a href="javascript:xzh(0)" class="coolbg"> 百度熊账号更新 </a>
 ```
 
-+ 4.进入dede目录下，js文件夹里面，打开list.js, 在最后或者中间加入代码
++ 4.进入 dede 目录下，js 文件夹里面，打开 list.js , 在最后或者中间加入代码
 ```php
 function xzh(aid){
 	var qstr=getCheckboxItem();
@@ -247,7 +247,7 @@ function xzh(aid){
 new ContextItem("熊账号更新",function(){ xzh(aid); }),
 ```
 
-+ 5.进入dede目录下，找到archives_do.php, 在267行增加
++ 5.进入 dede 目录下，找到 archives_do.php , 在267行增加
 ```php
 /*--------------------------
 //熊掌号更新
@@ -294,6 +294,85 @@ else if($dopost=="xzh")
     ShowMsg($result,$ENV_GOBACK_URL);
     exit();
 }
+```
+
+>11. 技巧 :
+```php
+# 列表页如何调用当前栏目链接
+{dede:type}[field:typeurl/]{/dede:type}
+
+# 获取顶级栏目的链接，名字，id
+{dede:field.reid/} # 上级栏目id
+{dede:field.typeid function="GetTopid(@me)"/} # 顶级栏目id
+
+# 获取顶级栏目id,名称及链接
+# 修改 include/helpers/extend.helper.PHP ，完美 gettoptype 
+
+/**
+* 获取一个类目的顶级栏目
+* @param string $tid 栏目ID
+* @return string
+*/
+if ( ! function_exists('gettoptype')) {
+    function gettoptype($tid,$action) {
+        global $dsql,$cfg_Cs;
+        if (!is_array($cfg_Cs)) {
+        require_once(DEDEDATA."/cache/inc_catalog_base.inc");
+    }
+    if (!isset($cfg_Cs[$tid][0]) || $cfg_Cs[$tid][0]==0) {
+        $topid = $tid;
+        }else{
+        $topid = GetTopid($cfg_Cs[$tid][0]);
+    }
+    $row = $dsql->GetOne("SELECT * FROM `#@__arctype` WHERE id=$topid");
+    $toptypename = $row['typename'];
+    $toptypeurl = $topid;
+    if($action=='id') return $topid;
+    if($action=='name') return $toptypename;
+    if($action=='link') return GetOneTypeUrlA($row);
+    }
+}
+
+{dede:field.typeid function="gettoptype(@me,id)"/}
+{dede:field.typeid function="gettoptype(@me,name)"/}
+{dede:field.typeid function="gettoptype(@me,link)"/} 
+
+# 循环调用二级三级栏目
+{dede:channelartlist  typeid='~id~'}
+     <a href="{dede:field name='typeurl'/}">{dede:field name='typename'/}</a>
+     <ul>
+        {dede:channel type='sun' row='10' noself='yes'}
+        <li><a href="[field:typeurl/]">[field:typename/]</a></li>
+        {/dede:channel}
+    </ul>       
+ {/dede:channelartlist}
+
+# 如果指定的栏目下面没有子栏目，怎么办
+{dede:channelartlist  typeid='~id~,0'}
+     <a href="{dede:field name='typeurl'/}">{dede:field name='typename'/}</a>
+     <ul>
+        {dede:channel type='sun' row='10' noself='yes'}
+        <li><a href="[field:typeurl/]">[field:typename/]</a></li>
+        {/dede:channel}
+    </ul>       
+ {/dede:channelartlist}
+
+{dede:channelartlist  typeid='~id~,0'}
+     <a href="{dede:field name='typeurl'/}">{dede:field name='typename'/}</a>
+     <ul>
+        {dede:sql sql='Select * from `dede_arctype` where reid=~id~ ORDER BY id'}
+        <li><a href="[field:typedir function="cn_substr(@me,200,9)"/]">[field:typename/]</a></li>
+        {/dede:sql}
+    </ul>       
+ {/dede:channelartlist}
+
+# $refObj
+{dede:php}
+var_dump($refObj);
+{/dede:php}
+
+# dede:flink
+{dede:flink row="~tolnum~" type="类型"/}
 ```
 
 #### 因为时间关系，还有很多修改功能没有展现出来，请有兴趣的自己研读代码吧！
